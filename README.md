@@ -241,4 +241,3 @@ python manage.py collectstatic
 
 ---
 
-Made with ❤️ for college project presentation.
