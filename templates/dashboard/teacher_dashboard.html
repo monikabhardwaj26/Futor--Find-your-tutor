@@ -1,0 +1,280 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Teacher Dashboard - Futor{% endblock %}
+
+{% block content %}
+<div class="dashboard-page">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-profile">
+            {% if user.profile_image %}
+                <img src="{{ user.profile_image.url }}" alt="{{ user.full_name }}" class="sidebar-avatar">
+            {% else %}
+                <div class="sidebar-avatar-placeholder">{{ user.full_name|first|upper }}</div>
+            {% endif %}
+            <h3>{{ user.full_name }}</h3>
+            <span class="role-badge role-teacher">Teacher</span>
+            {% if teacher_profile.is_verified %}
+            <span class="verified-badge"><i class="fas fa-check-circle"></i> Verified</span>
+            {% endif %}
+        </div>
+        <nav class="sidebar-nav">
+            <a href="{% url 'dashboard:teacher' %}" class="sidebar-link active">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+            <a href="{% url 'accounts:profile' %}" class="sidebar-link">
+                <i class="fas fa-user-edit"></i> Edit Profile
+            </a>
+            <a href="{% url 'tutors:list' %}" class="sidebar-link">
+                <i class="fas fa-users"></i> All Tutors
+            </a>
+            <a href="{% url 'accounts:logout' %}" class="sidebar-link sidebar-logout">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Dashboard Main Content -->
+    <main class="dashboard-main">
+        <div class="dashboard-header">
+            <h1>Teacher Dashboard 🎓</h1>
+            <p>Manage your bookings, students, and profile.</p>
+        </div>
+
+        <!-- Profile completion reminder -->
+        {% if not teacher_profile.qualification %}
+        <div class="profile-reminder">
+            <i class="fas fa-exclamation-circle"></i>
+            <span>Complete your profile to get more student bookings!</span>
+            <a href="{% url 'accounts:profile' %}" class="btn-small btn-primary">Complete Now</a>
+        </div>
+        {% endif %}
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card stat-blue">
+                <div class="stat-card-icon"><i class="fas fa-users"></i></div>
+                <div class="stat-card-info">
+                    <h3>{{ total_students }}</h3>
+                    <p>Total Students</p>
+                </div>
+            </div>
+            <div class="stat-card stat-green">
+                <div class="stat-card-icon"><i class="fas fa-video"></i></div>
+                <div class="stat-card-info">
+                    <h3>{{ demo_count }}</h3>
+                    <p>Demo Classes</p>
+                </div>
+            </div>
+            <div class="stat-card stat-orange">
+                <div class="stat-card-icon"><i class="fas fa-clock"></i></div>
+                <div class="stat-card-info">
+                    <h3>{{ pending_bookings.count }}</h3>
+                    <p>Pending Requests</p>
+                </div>
+            </div>
+            <div class="stat-card stat-purple">
+                <div class="stat-card-icon"><i class="fas fa-star"></i></div>
+                <div class="stat-card-info">
+                    <h3>{{ avg_rating }}/5</h3>
+                    <p>Avg Rating ({{ total_reviews }} reviews)</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Teacher Profile Summary -->
+        <div class="dashboard-section">
+            <h2 class="section-title-sm">My Teaching Profile</h2>
+            <div class="teacher-profile-summary">
+                <div class="profile-item">
+                    <i class="fas fa-graduation-cap"></i>
+                    <strong>Qualification:</strong>
+                    <span>{{ teacher_profile.qualification|default:"Not set" }}</span>
+                </div>
+                <div class="profile-item">
+                    <i class="fas fa-briefcase"></i>
+                    <strong>Experience:</strong>
+                    <span>{{ teacher_profile.experience_years }} years</span>
+                </div>
+                <div class="profile-item">
+                    <i class="fas fa-book"></i>
+                    <strong>Subjects:</strong>
+                    <span>{{ teacher_profile.subjects|default:"Not set" }}</span>
+                </div>
+                <div class="profile-item">
+                    <i class="fas fa-rupee-sign"></i>
+                    <strong>Fees:</strong>
+                    <span>₹{{ teacher_profile.fees_per_month|default:"0" }}/month</span>
+                </div>
+                <div class="profile-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <strong>City:</strong>
+                    <span>{{ teacher_profile.city|default:"Not set" }}</span>
+                </div>
+                <div class="profile-item">
+                    <i class="fas fa-laptop-house"></i>
+                    <strong>Mode:</strong>
+                    <span>{{ teacher_profile.get_teaching_mode_display }}</span>
+                </div>
+            </div>
+            <a href="{% url 'accounts:profile' %}" class="btn-outline" style="margin-top:15px;">
+                <i class="fas fa-edit"></i> Edit Profile
+            </a>
+        </div>
+
+        <!-- Demo Video Section -->
+        <div class="dashboard-section">
+            <h2 class="section-title-sm">Demo Video</h2>
+            <div class="video-section">
+                {% if teacher_profile.youtube_link %}
+                <div class="youtube-embed">
+                    <h4>YouTube Demo:</h4>
+                    <a href="{{ teacher_profile.youtube_link }}" target="_blank" class="youtube-link">
+                        <i class="fab fa-youtube"></i> Watch on YouTube
+                    </a>
+                </div>
+                {% endif %}
+                {% if teacher_profile.demo_video %}
+                <div class="uploaded-video">
+                    <h4>Uploaded Demo:</h4>
+                    <video controls class="demo-player" style="max-width:400px; border-radius:10px;">
+                        <source src="{{ teacher_profile.demo_video.url }}">
+                        Your browser doesn't support video.
+                    </video>
+                </div>
+                {% endif %}
+                {% if not teacher_profile.youtube_link and not teacher_profile.demo_video %}
+                <div class="empty-state small">
+                    <i class="fas fa-video"></i>
+                    <p>Upload a demo video or add a YouTube link to attract more students.</p>
+                    <a href="{% url 'accounts:profile' %}" class="btn-primary">Add Video</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Pending Booking Requests -->
+        <div class="dashboard-section">
+            <h2 class="section-title-sm">📋 Booking Requests</h2>
+            {% if pending_bookings %}
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Subject</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Message</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for booking in pending_bookings %}
+                        <tr>
+                            <td>{{ booking.student.full_name }}</td>
+                            <td>{{ booking.subject }}</td>
+                            <td>{{ booking.preferred_date }}</td>
+                            <td>{{ booking.preferred_time }}</td>
+                            <td>{{ booking.message|truncatechars:30|default:"—" }}</td>
+                            <td class="booking-actions">
+                                <form method="POST" action="{% url 'bookings:update_status' booking.id %}" style="display:inline">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="status" value="confirmed">
+                                    <button type="submit" class="btn-small btn-success">✓ Confirm</button>
+                                </form>
+                                <form method="POST" action="{% url 'bookings:update_status' booking.id %}" style="display:inline">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="status" value="cancelled">
+                                    <button type="submit" class="btn-small btn-danger">✗ Decline</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state small">
+                <i class="fas fa-inbox"></i>
+                <p>No pending booking requests at the moment.</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- All Bookings -->
+        <div class="dashboard-section">
+            <h2 class="section-title-sm">All Bookings</h2>
+            {% if all_bookings %}
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Subject</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Update</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for booking in all_bookings %}
+                        <tr>
+                            <td>{{ booking.student.full_name }}</td>
+                            <td>{{ booking.subject }}</td>
+                            <td>{{ booking.preferred_date }}</td>
+                            <td>
+                                <span class="status-badge status-{{ booking.status }}">
+                                    {{ booking.get_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if booking.status == 'confirmed' %}
+                                <form method="POST" action="{% url 'bookings:update_status' booking.id %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="status" value="completed">
+                                    <button type="submit" class="btn-small btn-success">Mark Done</button>
+                                </form>
+                                {% else %}
+                                <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state small">
+                <i class="fas fa-calendar"></i>
+                <p>No bookings yet. Complete your profile to attract students!</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Reviews Section -->
+        {% if reviews %}
+        <div class="dashboard-section">
+            <h2 class="section-title-sm">⭐ Student Reviews</h2>
+            <div class="reviews-list">
+                {% for review in reviews %}
+                <div class="review-item">
+                    <div class="review-header">
+                        <strong>{{ review.student.full_name }}</strong>
+                        <span class="stars">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}
+                            {% endfor %}
+                        </span>
+                        <span class="review-date">{{ review.created_at|date:"d M Y" }}</span>
+                    </div>
+                    <p class="review-text">{{ review.review_text }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </main>
+</div>
+{% endblock %}

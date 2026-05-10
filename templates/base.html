@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ page_title|default:"Futor" }}{% endblock %}</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    {% load static %}
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+
+    <!-- Loading Overlay -->
+    <div id="page-loader" class="page-loader">
+        <div class="loader-content">
+            <div class="loader-logo">Futor</div>
+            <div class="loader-spinner"></div>
+        </div>
+    </div>
+
+    <!-- Sticky Navbar -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+
+            <!-- Logo -->
+            <a href="{% url 'home:index' %}" class="nav-logo">
+                <span class="logo-f">F</span>utor
+            </a>
+
+            <!-- Desktop Navigation Links -->
+            <ul class="nav-links" id="navLinks">
+                <li>
+                    <a href="{% url 'home:index' %}"
+                       class="nav-link {% if request.resolver_match.app_name == 'home' and request.resolver_match.url_name == 'index' %}active{% endif %}">
+                        Home
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'courses:courses' %}"
+                       class="nav-link {% if request.resolver_match.app_name == 'courses' %}active{% endif %}">
+                        Courses
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'tutors:list' %}"
+                       class="nav-link {% if request.resolver_match.app_name == 'tutors' %}active{% endif %}">
+                        Find Tutors
+                    </a>
+                </li>
+
+                {% if user.is_authenticated %}
+                    <li>
+                        <a href="{% if user.role == 'teacher' %}{% url 'dashboard:teacher' %}{% else %}{% url 'dashboard:student' %}{% endif %}"
+                           class="nav-link {% if request.resolver_match.app_name == 'dashboard' %}active{% endif %}">
+                            Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-dropdown">
+                        <a href="{% url 'accounts:profile' %}" class="nav-link nav-profile-btn">
+                            {% if user.profile_image %}
+                                <img src="{{ user.profile_image.url }}" alt="Profile" class="nav-avatar">
+                            {% else %}
+                                <div class="nav-avatar-placeholder">{{ user.full_name|first|upper }}</div>
+                            {% endif %}
+                            {{ user.full_name|truncatechars:12 }}
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'accounts:logout' %}" class="nav-link nav-logout-btn">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    </li>
+                {% else %}
+                    <li>
+                        <a href="{% url 'accounts:login' %}" class="nav-link">Login</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'accounts:register' %}" class="nav-btn">Register Free</a>
+                    </li>
+                {% endif %}
+            </ul>
+
+            <!-- Hamburger Menu Button (mobile) -->
+            <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+                <span class="ham-bar"></span>
+                <span class="ham-bar"></span>
+                <span class="ham-bar"></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Django Messages / Alerts -->
+    {% if messages %}
+    <div class="messages-container" id="messagesContainer">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            <span class="alert-icon">
+                {% if message.tags == 'success' %}<i class="fas fa-check-circle"></i>
+                {% elif message.tags == 'error' %}<i class="fas fa-times-circle"></i>
+                {% elif message.tags == 'warning' %}<i class="fas fa-exclamation-triangle"></i>
+                {% else %}<i class="fas fa-info-circle"></i>{% endif %}
+            </span>
+            {{ message }}
+            <button class="alert-close" onclick="this.parentElement.remove()">×</button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Main Page Content -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    {% block footer %}
+    <footer class="footer">
+        <div class="footer-container">
+            <!-- Logo & Description -->
+            <div class="footer-col footer-brand">
+                <a href="{% url 'home:index' %}" class="footer-logo">
+                    <span class="logo-f">F</span>utor
+                </a>
+                <p class="footer-desc">Find Trusted Tutors in Your Area. Quality education made accessible for every student.</p>
+                <div class="footer-social">
+                    <a href="#" class="social-icon" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="social-icon" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="social-icon" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="social-icon" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="footer-col">
+                <h4 class="footer-heading">Quick Links</h4>
+                <ul class="footer-links">
+                    <li><a href="{% url 'home:index' %}">Home</a></li>
+                    <li><a href="{% url 'courses:courses' %}">Courses</a></li>
+                    <li><a href="{% url 'tutors:list' %}">Find Tutors</a></li>
+                    <li><a href="{% url 'home:about' %}">About Us</a></li>
+                    <li><a href="{% url 'home:contact' %}">Contact</a></li>
+                </ul>
+            </div>
+
+            <!-- Subjects -->
+            <div class="footer-col">
+                <h4 class="footer-heading">Popular Subjects</h4>
+                <ul class="footer-links">
+                    <li><a href="{% url 'tutors:list' %}?subject=Mathematics">Mathematics</a></li>
+                    <li><a href="{% url 'tutors:list' %}?subject=Physics">Physics</a></li>
+                    <li><a href="{% url 'tutors:list' %}?subject=Chemistry">Chemistry</a></li>
+                    <li><a href="{% url 'tutors:list' %}?subject=English">English</a></li>
+                    <li><a href="{% url 'tutors:list' %}?subject=Computer Science">Computer</a></li>
+                </ul>
+            </div>
+
+            <!-- Contact Info -->
+            <div class="footer-col">
+                <h4 class="footer-heading">Contact Us</h4>
+                <ul class="footer-contact">
+                    <li><i class="fas fa-envelope"></i> support@futor.in</li>
+                    <li><i class="fas fa-phone"></i> +91 98765 43210</li>
+                    <li><i class="fas fa-map-marker-alt"></i> India</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; 2024 Futor. All rights reserved. | Built with ❤️ for Students across India</p>
+        </div>
+    </footer>
+    {% endblock %}
+
+    <!-- Scroll to Top Button -->
+    <button class="scroll-top" id="scrollTop" aria-label="Scroll to top">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+
+    <!-- Dark/Light Mode Toggle -->
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+        <i class="fas fa-moon" id="themeIcon"></i>
+    </button>
+
+    {% load static %}
+    <!-- Main JavaScript -->
+    <script src="{% static 'js/main.js' %}"></script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

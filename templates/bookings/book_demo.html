@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Book Demo - {{ teacher.full_name }}{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="container" style="max-width:700px;padding:60px 20px;">
+        <a href="{% url 'tutors:detail' teacher.id %}" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Profile
+        </a>
+        <div class="booking-form-card">
+            <div class="booking-teacher-info">
+                <div class="booking-avatar">
+                    {% if teacher.profile_image %}
+                        <img src="{{ teacher.profile_image.url }}" alt="{{ teacher.full_name }}">
+                    {% else %}
+                        <div class="booking-avatar-placeholder">{{ teacher.full_name|first|upper }}</div>
+                    {% endif %}
+                </div>
+                <div>
+                    <h2>Book Demo Class with</h2>
+                    <h3>{{ teacher.full_name }}</h3>
+                    {% if teacher.teacher_profile.qualification %}<p>{{ teacher.teacher_profile.qualification }}</p>{% endif %}
+                    <span class="demo-free-badge">Free Demo Class</span>
+                </div>
+            </div>
+
+            <form method="POST" action="{% url 'bookings:book_demo' teacher.id %}" class="auth-form">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label class="form-label"><i class="fas fa-book"></i> Subject *</label>
+                    <select name="subject" class="form-select" required>
+                        <option value="">-- Select Subject --</option>
+                        {% if teacher.teacher_profile.subjects %}
+                            {% for subject in teacher.teacher_profile.get_subjects_list %}
+                            <option value="{{ subject }}">{{ subject }}</option>
+                            {% endfor %}
+                        {% else %}
+                            <option value="Mathematics">Mathematics</option>
+                            <option value="Science">Science</option>
+                            <option value="English">English</option>
+                            <option value="Physics">Physics</option>
+                            <option value="Chemistry">Chemistry</option>
+                            <option value="Hindi">Hindi</option>
+                            <option value="Computer Science">Computer Science</option>
+                        {% endif %}
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label"><i class="fas fa-calendar"></i> Preferred Date *</label>
+                        <input type="date" name="preferred_date" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label"><i class="fas fa-clock"></i> Preferred Time *</label>
+                        <input type="time" name="preferred_time" class="form-input" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label"><i class="fas fa-comment"></i> Message (Optional)</label>
+                    <textarea name="message" class="form-textarea" rows="3" placeholder="Tell the tutor about your goals, class, or specific topics..."></textarea>
+                </div>
+                <div class="booking-note">
+                    <i class="fas fa-info-circle"></i>
+                    <p>The tutor will confirm your demo class. Demo classes are completely free!</p>
+                </div>
+                <button type="submit" class="btn-primary btn-full">
+                    <i class="fas fa-calendar-check"></i> Confirm Booking Request
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

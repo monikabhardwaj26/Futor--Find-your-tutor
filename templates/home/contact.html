@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}Contact Us - Futor{% endblock %}
+
+{% block content %}
+<div class="page-hero page-hero-sm">
+    <div class="container">
+        <h1 class="page-hero-title">Contact Us</h1>
+        <p class="page-hero-sub">We'd love to hear from you</p>
+    </div>
+</div>
+
+<section class="contact-page section-padding">
+    <div class="container" style="max-width:800px;">
+        <div class="contact-layout">
+            <div class="contact-info">
+                <h2>Get In Touch</h2>
+                <div class="contact-item"><i class="fas fa-envelope"></i><span>support@futor.in</span></div>
+                <div class="contact-item"><i class="fas fa-phone"></i><span>+91 98765 43210</span></div>
+                <div class="contact-item"><i class="fas fa-map-marker-alt"></i><span>India</span></div>
+            </div>
+            <div class="contact-form-wrap">
+                <h2>Send a Message</h2>
+                <form method="POST" action="{% url 'home:contact' %}" class="auth-form">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label class="form-label">Your Name</label>
+                        <input type="text" name="name" class="form-input" placeholder="Enter your name" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" name="email" class="form-input" placeholder="Enter your email" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Message</label>
+                        <textarea name="message" class="form-textarea" rows="5" placeholder="How can we help you?" required></textarea>
+                    </div>
+                    <button type="submit" class="btn-primary btn-full">
+                        <i class="fas fa-paper-plane"></i> Send Message
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

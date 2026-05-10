@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Student Dashboard - Futor{% endblock %}
+
+{% block content %}
+<div class="dashboard-page">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-profile">
+            {% if user.profile_image %}
+                <img src="{{ user.profile_image.url }}" alt="{{ user.full_name }}" class="sidebar-avatar">
+            {% else %}
+                <div class="sidebar-avatar-placeholder">{{ user.full_name|first|upper }}</div>
+            {% endif %}
+            <h3>{{ user.full_name }}</h3>
+            <span class="role-badge role-student">Student</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="{% url 'dashboard:student' %}" class="sidebar-link active">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+            <a href="{% url 'tutors:list' %}" class="sidebar-link">
+                <i class="fas fa-search"></i> Find Tutors
+            </a>
+            <a href="{% url 'courses:courses' %}" class="sidebar-link">
+                <i class="fas fa-book"></i> Courses
+            </a>
+            <a href="{% url 'accounts:profile' %}" class="sidebar-link">
+                <i class="fas fa-user-edit"></i> Edit Profile
+            </a>
+            <a href="{% url 'accounts:logout' %}" class="sidebar-link sidebar-logout">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Dashboard Main Content -->
+    <main class="dashboard-main">
+        <div class="dashboard-header">
+            <h1>Welcome back, {{ user.full_name }}! 👋</h1>
+            <p>Track your learning journey from here.</p>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card stat-blue">
+                <div class="stat-card-icon"><i class="fas fa-calendar-check"></i></div>
+                <div class="stat-card-info">
+                    <h3>{{ total_bookings }}</h3>
+                    <p>Total Bookings</p>
+                </div>
+            </div>
+            <div class="stat-card stat-green">
+                <div class="stat-card-icon"><i class="fas fa-check-double"></i></div>
+                <div class="stat-card-info">
+                    <h3>{{ completed_count }}</h3>
+                    <p>Completed Classes</p>
+                </div>
+            </div>
+            <div class="stat-card stat-orange">
+                <div class="stat-card-icon"><i class="fas fa-clock"></i></div>
+                <div class="stat-card-info">
+                    <h3>{{ pending_bookings.count }}</h3>
+                    <p>Pending Requests</p>
+                </div>
+            </div>
+            <div class="stat-card stat-purple">
+                <div class="stat-card-icon"><i class="fas fa-heart"></i></div>
+                <div class="stat-card-info">
+                    <h3>{{ favorite_tutors.count }}</h3>
+                    <p>Favorite Tutors</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <h2 class="section-title-sm">Quick Actions</h2>
+            <div class="action-buttons">
+                <a href="{% url 'tutors:list' %}" class="action-btn">
+                    <i class="fas fa-search"></i> Find Tutors
+                </a>
+                <a href="{% url 'courses:courses' %}" class="action-btn">
+                    <i class="fas fa-book-open"></i> Browse Courses
+                </a>
+                <a href="{% url 'accounts:profile' %}" class="action-btn">
+                    <i class="fas fa-user-edit"></i> Update Profile
+                </a>
+            </div>
+        </div>
+
+        <!-- Bookings Table -->
+        <div class="dashboard-section">
+            <h2 class="section-title-sm">My Bookings</h2>
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('all')">All ({{ total_bookings }})</button>
+                <button class="tab" onclick="showTab('pending')">Pending ({{ pending_bookings.count }})</button>
+                <button class="tab" onclick="showTab('confirmed')">Confirmed ({{ confirmed_bookings.count }})</button>
+                <button class="tab" onclick="showTab('completed')">Completed ({{ completed_count }})</button>
+            </div>
+
+            <div class="tab-content active" id="tab-all">
+                {% if all_bookings %}
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Teacher</th>
+                                <th>Subject</th>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for booking in all_bookings %}
+                            <tr>
+                                <td>{{ booking.teacher.full_name }}</td>
+                                <td>{{ booking.subject }}</td>
+                                <td>{{ booking.preferred_date }}</td>
+                                <td>{{ booking.preferred_time }}</td>
+                                <td>
+                                    <span class="status-badge status-{{ booking.status }}">
+                                        {{ booking.get_status_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if booking.status == 'pending' %}
+                                    <a href="{% url 'bookings:cancel_booking' booking.id %}"
+                                       onclick="return confirm('Cancel this booking?')"
+                                       class="btn-small btn-danger">Cancel</a>
+                                    {% elif booking.status == 'completed' %}
+                                    <a href="{% url 'reviews:add_review' booking.teacher.id %}" class="btn-small btn-primary">Review</a>
+                                    {% else %}
+                                    <span class="text-muted">—</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-calendar-times"></i>
+                    <h3>No Bookings Yet</h3>
+                    <p>Find a tutor and book your first demo class!</p>
+                    <a href="{% url 'tutors:list' %}" class="btn-primary">Find Tutors</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Favorite Tutors -->
+        {% if favorite_tutors %}
+        <div class="dashboard-section">
+            <h2 class="section-title-sm">❤️ Favorite Tutors</h2>
+            <div class="mini-tutors-grid">
+                {% for tutor in favorite_tutors %}
+                <div class="mini-tutor-card">
+                    {% if tutor.profile_image %}
+                        <img src="{{ tutor.profile_image.url }}" alt="{{ tutor.full_name }}" class="mini-avatar">
+                    {% else %}
+                        <div class="mini-avatar-placeholder">{{ tutor.full_name|first|upper }}</div>
+                    {% endif %}
+                    <div class="mini-tutor-info">
+                        <strong>{{ tutor.full_name }}</strong>
+                        <span>{{ tutor.teacher_profile.subjects|truncatechars:30 }}</span>
+                    </div>
+                    <div class="mini-tutor-actions">
+                        <a href="{% url 'tutors:detail' tutor.id %}" class="btn-small btn-primary">View</a>
+                        <a href="{% url 'bookings:book_demo' tutor.id %}" class="btn-small btn-outline">Book</a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </main>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function showTab(name) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    event.target.classList.add('active');
+}
+</script>
+{% endblock %}

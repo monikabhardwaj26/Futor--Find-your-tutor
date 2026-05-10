@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Select Your Role - Futor{% endblock %}
+
+{% block content %}
+<div class="role-page">
+    <div class="role-container">
+        <div class="role-header">
+            <a href="{% url 'home:index' %}" class="auth-logo">
+                <span class="logo-f">F</span>utor
+            </a>
+            <h1>Welcome, {{ user.full_name }}! 👋</h1>
+            <p>Tell us how you want to use Futor. You can always change this later.</p>
+        </div>
+
+        <form method="POST" action="{% url 'accounts:role_select' %}">
+            {% csrf_token %}
+            <div class="role-cards">
+
+                <!-- Student Card -->
+                <label class="role-card" for="student">
+                    <input type="radio" name="role" id="student" value="student" class="role-radio">
+                    <div class="role-card-inner">
+                        <div class="role-icon role-student">
+                            <i class="fas fa-user-graduate"></i>
+                        </div>
+                        <h2>I'm a Student</h2>
+                        <p>I want to find qualified tutors and book demo classes for my studies.</p>
+                        <ul class="role-benefits">
+                            <li><i class="fas fa-check"></i> Browse verified tutors</li>
+                            <li><i class="fas fa-check"></i> Book free demo classes</li>
+                            <li><i class="fas fa-check"></i> Rate and review tutors</li>
+                            <li><i class="fas fa-check"></i> Track your learning</li>
+                        </ul>
+                        <div class="role-select-indicator">
+                            <i class="fas fa-check-circle"></i> Selected
+                        </div>
+                    </div>
+                </label>
+
+                <!-- Teacher Card -->
+                <label class="role-card" for="teacher">
+                    <input type="radio" name="role" id="teacher" value="teacher" class="role-radio">
+                    <div class="role-card-inner">
+                        <div class="role-icon role-teacher">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                        </div>
+                        <h2>I'm a Teacher</h2>
+                        <p>I want to offer tuition services and connect with students near me.</p>
+                        <ul class="role-benefits">
+                            <li><i class="fas fa-check"></i> Create teacher profile</li>
+                            <li><i class="fas fa-check"></i> Manage bookings</li>
+                            <li><i class="fas fa-check"></i> Upload demo videos</li>
+                            <li><i class="fas fa-check"></i> Grow your student base</li>
+                        </ul>
+                        <div class="role-select-indicator">
+                            <i class="fas fa-check-circle"></i> Selected
+                        </div>
+                    </div>
+                </label>
+
+            </div>
+
+            <div class="role-submit">
+                <button type="submit" class="btn-primary btn-large" id="continueBtn" disabled>
+                    Continue <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Enable Continue button when a role is selected
+const radios = document.querySelectorAll('.role-radio');
+const continueBtn = document.getElementById('continueBtn');
+const roleCards = document.querySelectorAll('.role-card');
+
+radios.forEach(radio => {
+    radio.addEventListener('change', function() {
+        continueBtn.disabled = false;
+        continueBtn.classList.add('active');
+        // Highlight selected card
+        roleCards.forEach(card => card.classList.remove('selected'));
+        this.closest('.role-card').classList.add('selected');
+    });
+});
+</script>
+{% endblock %}

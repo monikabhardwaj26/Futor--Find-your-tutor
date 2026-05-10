@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ teacher.full_name }} - Futor{% endblock %}
+
+{% block content %}
+<section class="tutor-detail-page section-padding">
+    <div class="container">
+        <a href="{% url 'tutors:list' %}" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Tutors
+        </a>
+        <div class="tutor-detail-layout">
+
+            <!-- Profile Sidebar -->
+            <aside class="tutor-detail-sidebar">
+                <div class="tutor-detail-card">
+                    {% if profile.is_verified %}
+                    <div class="tutor-badge verified detail-badge">Verified Tutor</div>
+                    {% endif %}
+                    <div class="tutor-detail-image">
+                        {% if teacher.profile_image %}
+                            <img src="{{ teacher.profile_image.url }}" alt="{{ teacher.full_name }}" class="detail-avatar">
+                        {% else %}
+                            <div class="detail-avatar-placeholder">{{ teacher.full_name|first|upper }}</div>
+                        {% endif %}
+                    </div>
+                    <h1 class="detail-name">{{ teacher.full_name }}</h1>
+                    <p class="detail-qual">{{ profile.qualification|default:"Qualified Teacher" }}</p>
+                    {% if avg_rating > 0 %}
+                    <div class="detail-rating">
+                        <span class="detail-stars">
+                            {% for i in "12345" %}{% if forloop.counter <= avg_rating %}★{% else %}☆{% endif %}{% endfor %}
+                        </span>
+                        <span>{{ avg_rating }}/5 ({{ reviews.count }} reviews)</span>
+                    </div>
+                    {% endif %}
+                    <div class="detail-info-list">
+                        <div class="detail-info-item"><i class="fas fa-briefcase"></i><span>{{ profile.experience_years|default:"0" }} Years Experience</span></div>
+                        <div class="detail-info-item"><i class="fas fa-map-marker-alt"></i><span>{{ profile.city|default:"Not set" }}</span></div>
+                        {% if profile %}
+                        <div class="detail-info-item"><i class="fas fa-laptop-house"></i><span>{{ profile.get_teaching_mode_display }}</span></div>
+                        <div class="detail-info-item"><i class="fas fa-rupee-sign"></i><span>{% if profile.fees_per_month %}Rs.{{ profile.fees_per_month }}/month{% else %}Negotiable{% endif %}</span></div>
+                        <div class="detail-info-item">
+                            <i class="fas fa-circle {% if profile.is_available %}text-green{% else %}text-red{% endif %}"></i>
+                            <span>{% if profile.is_available %}Available{% else %}Not Available{% endif %}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% if profile.get_subjects_list %}
+                    <div class="detail-subjects">
+                        <h4>Subjects Taught</h4>
+                        <div class="subjects-wrap">
+                            {% for subject in profile.get_subjects_list %}
+                            <span class="subject-tag">{{ subject }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    <div class="detail-actions">
+                        {% if user.is_authenticated %}
+                            {% if user.role == 'student' %}
+                            <a href="{% url 'bookings:book_demo' teacher.id %}" class="btn-primary btn-full">
+                                <i class="fas fa-calendar-plus"></i> Book Demo Class
+                            </a>
+                            <a href="{% url 'dashboard:toggle_favorite' teacher.id %}" class="btn-outline btn-full" style="margin-top:10px;">
+                                <i class="fas fa-heart"></i> Add to Favorites
+                            </a>
+                            {% endif %}
+                        {% else %}
+                        <a href="{% url 'accounts:login' %}" class="btn-primary btn-full">
+                            <i class="fas fa-sign-in-alt"></i> Login to Book Demo
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="tutor-detail-main">
+                {% if profile.bio %}
+                <div class="detail-section">
+                    <h2>About {{ teacher.full_name }}</h2>
+                    <p class="detail-bio">{{ profile.bio }}</p>
+                </div>
+                {% endif %}
+
+                {% if profile.youtube_link or profile.demo_video %}
+                <div class="detail-section">
+                    <h2><i class="fas fa-video"></i> Demo Video</h2>
+                    {% if profile.youtube_link %}
+                    <a href="{{ profile.youtube_link }}" target="_blank" class="youtube-preview-btn">
+                        <i class="fab fa-youtube"></i> Watch Demo on YouTube
+                    </a>
+                    {% endif %}
+                    {% if profile.demo_video %}
+                    <video controls class="demo-player" style="width:100%;max-width:600px;border-radius:12px;margin-top:15px;">
+                        <source src="{{ profile.demo_video.url }}">Your browser doesn't support video.
+                    </video>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <div class="detail-section">
+                    <h2><i class="fas fa-star"></i> Student Reviews ({{ reviews.count }})</h2>
+                    {% if user.is_authenticated and user.role == 'student' %}
+                    <div class="add-review-form">
+                        <h3>{% if user_review %}Update Your Review{% else %}Write a Review{% endif %}</h3>
+                        <form method="POST" action="{% url 'reviews:add_review' teacher.id %}">
+                            {% csrf_token %}
+                            <div class="rating-select">
+                                <label>Rating:</label>
+                                <div class="star-rating">
+                                    {% for i in "54321" %}
+                                    <input type="radio" name="rating" id="star{{ i }}" value="{{ i }}" {% if user_review and user_review.rating == forloop.revcounter %}checked{% endif %}>
+                                    <label for="star{{ i }}">&#9733;</label>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <textarea name="review_text" class="form-textarea" placeholder="Share your experience..." rows="3">{% if user_review %}{{ user_review.review_text }}{% endif %}</textarea>
+                            <button type="submit" class="btn-primary" style="margin-top:10px;">
+                                {% if user_review %}Update Review{% else %}Submit Review{% endif %}
+                            </button>
+                        </form>
+                    </div>
+                    {% endif %}
+
+                    {% if reviews %}
+                    <div class="reviews-list">
+                        {% for review in reviews %}
+                        <div class="review-item">
+                            <div class="review-header">
+                                <div class="reviewer-avatar">{{ review.student.full_name|first|upper }}</div>
+                                <div class="reviewer-info">
+                                    <strong>{{ review.student.full_name }}</strong>
+                                    <div class="review-stars">
+                                        {% for i in "12345" %}{% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}{% endfor %}
+                                    </div>
+                                </div>
+                                <span class="review-date">{{ review.created_at|date:"d M Y" }}</span>
+                            </div>
+                            <p class="review-text">{{ review.review_text }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="empty-state small">
+                        <i class="fas fa-comment-slash"></i>
+                        <p>No reviews yet. Be the first to review!</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </main>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Find Tutors - Futor{% endblock %}
+
+{% block content %}
+<div class="page-hero page-hero-sm">
+    <div class="container">
+        <h1 class="page-hero-title">Find Your Perfect Tutor</h1>
+        <p class="page-hero-sub">Browse verified tutors across all subjects and locations</p>
+    </div>
+</div>
+
+<section class="tutors-page section-padding">
+    <div class="container">
+
+        <!-- Search & Filter Bar -->
+        <form class="search-filter-bar" method="GET" action="{% url 'tutors:list' %}">
+            <div class="search-filter-group">
+                <i class="fas fa-search"></i>
+                <input type="text" name="subject" class="filter-input"
+                       placeholder="Subject e.g. Mathematics" value="{{ search_subject }}">
+            </div>
+            <div class="search-filter-group">
+                <i class="fas fa-map-marker-alt"></i>
+                <input type="text" name="location" class="filter-input"
+                       placeholder="City or area" value="{{ search_location }}">
+            </div>
+            <div class="search-filter-group">
+                <select name="mode" class="filter-select">
+                    <option value="">All Modes</option>
+                    <option value="online" {% if mode_filter == 'online' %}selected{% endif %}>Online</option>
+                    <option value="offline" {% if mode_filter == 'offline' %}selected{% endif %}>Home Tuition</option>
+                    <option value="both" {% if mode_filter == 'both' %}selected{% endif %}>Both</option>
+                </select>
+            </div>
+            <div class="search-filter-group">
+                <input type="number" name="max_fees" class="filter-input"
+                       placeholder="Max fees (Rs/mo)" value="{{ request.GET.max_fees }}">
+            </div>
+            <button type="submit" class="btn-primary"><i class="fas fa-filter"></i> Filter</button>
+            <a href="{% url 'tutors:list' %}" class="btn-outline">Clear</a>
+        </form>
+
+        <!-- Results Count -->
+        <div class="results-info">
+            <p>
+                {% if teachers %}Showing <strong>{{ teachers|length }}</strong> tutor(s)
+                {% if search_subject %}for <strong>{{ search_subject }}</strong>{% endif %}
+                {% if search_location %}in <strong>{{ search_location }}</strong>{% endif %}
+                {% else %}No tutors found matching your criteria.{% endif %}
+            </p>
+        </div>
+
+        <!-- Tutors Grid -->
+        {% if teachers %}
+        <div class="tutors-grid">
+            {% for tp in teachers %}
+            <div class="tutor-card">
+                {% if tp.is_verified %}<div class="tutor-badge verified">Verified</div>{% endif %}
+                <div class="tutor-image-wrap">
+                    {% if tp.user.profile_image %}
+                        <img src="{{ tp.user.profile_image.url }}" alt="{{ tp.user.full_name }}" class="tutor-img">
+                    {% else %}
+                        <div class="tutor-img-placeholder">{{ tp.user.full_name|first|upper }}</div>
+                    {% endif %}
+                </div>
+                <div class="tutor-info">
+                    <h3 class="tutor-name">{{ tp.user.full_name }}</h3>
+                    <p class="tutor-qual"><i class="fas fa-graduation-cap"></i> {{ tp.qualification|default:"Qualified Tutor" }}</p>
+                    <p class="tutor-exp"><i class="fas fa-briefcase"></i> {{ tp.experience_years }} yrs experience</p>
+                    <p class="tutor-location"><i class="fas fa-map-marker-alt"></i> {{ tp.city|default:"N/A" }}</p>
+                    <p class="tutor-mode"><i class="fas fa-laptop-house"></i> {{ tp.get_teaching_mode_display }}</p>
+                    <div class="tutor-subjects">
+                        {% for subject in tp.get_subjects_list|slice:":3" %}
+                        <span class="subject-tag">{{ subject }}</span>
+                        {% empty %}<span class="subject-tag">General</span>{% endfor %}
+                    </div>
+                    {% with avg=tp.get_average_rating %}
+                    {% if avg > 0 %}
+                    <div class="tutor-rating">
+                        <span class="stars-sm">
+                            {% for i in "12345" %}{% if forloop.counter <= avg %}★{% else %}☆{% endif %}{% endfor %}
+                        </span>
+                        <span class="rating-num">{{ avg }}/5</span>
+                    </div>
+                    {% endif %}
+                    {% endwith %}
+                    <div class="tutor-footer">
+                        <span class="tutor-fees"><i class="fas fa-rupee-sign"></i>{% if tp.fees_per_month %}{{ tp.fees_per_month }}/mo{% else %}Negotiable{% endif %}</span>
+                        <div style="display:flex;gap:8px;">
+                            <a href="{% url 'tutors:detail' tp.user.id %}" class="btn-demo">View Profile</a>
+                            {% if user.is_authenticated %}
+                            <a href="{% url 'bookings:book_demo' tp.user.id %}" class="btn-demo" style="background:var(--accent)">Book Demo</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-user-slash"></i>
+            <h3>No Tutors Found</h3>
+            <p>Try clearing the filters or searching with different keywords.</p>
+            <a href="{% url 'tutors:list' %}" class="btn-primary">Show All Tutors</a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

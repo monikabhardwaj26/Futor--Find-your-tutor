@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Profile - Futor{% endblock %}
+
+{% block content %}
+<div class="dashboard-page">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-profile">
+            {% if user.profile_image %}
+                <img src="{{ user.profile_image.url }}" alt="Profile" class="sidebar-avatar">
+            {% else %}
+                <div class="sidebar-avatar-placeholder">{{ user.full_name|first|upper }}</div>
+            {% endif %}
+            <h3>{{ user.full_name }}</h3>
+            <span class="role-badge role-{{ user.role }}">{{ user.get_role_display }}</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="{% if user.role == 'teacher' %}{% url 'dashboard:teacher' %}{% else %}{% url 'dashboard:student' %}{% endif %}" class="sidebar-link">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+            <a href="{% url 'accounts:profile' %}" class="sidebar-link active">
+                <i class="fas fa-user"></i> My Profile
+            </a>
+            <a href="{% url 'accounts:logout' %}" class="sidebar-link sidebar-logout">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="dashboard-main">
+        <div class="dashboard-header">
+            <h1><i class="fas fa-user-edit"></i> Edit Profile</h1>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data" class="profile-form">
+            {% csrf_token %}
+
+            <!-- Basic Info Section -->
+            <div class="form-section">
+                <h2 class="form-section-title">Basic Information</h2>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Full Name</label>
+                        {{ user_form.full_name }}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Phone Number</label>
+                        {{ user_form.phone_number }}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Profile Photo</label>
+                    {{ user_form.profile_image }}
+                    {% if user.profile_image %}
+                    <div class="current-image">
+                        <img src="{{ user.profile_image.url }}" alt="Current profile" style="width:80px; height:80px; border-radius:50%; object-fit:cover; margin-top:10px;">
+                        <p style="font-size:12px; color:#888; margin-top:5px;">Current photo</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Role-specific profile info -->
+            <div class="form-section">
+                {% if user.role == 'teacher' %}
+                <h2 class="form-section-title">Teaching Details</h2>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Qualification</label>
+                        {{ profile_form.qualification }}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Experience (Years)</label>
+                        {{ profile_form.experience_years }}
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Subjects (comma separated)</label>
+                        {{ profile_form.subjects }}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Monthly Fees (₹)</label>
+                        {{ profile_form.fees_per_month }}
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">City</label>
+                        {{ profile_form.city }}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Teaching Mode</label>
+                        {{ profile_form.teaching_mode }}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Bio</label>
+                    {{ profile_form.bio }}
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Demo Video (Upload)</label>
+                        {{ profile_form.demo_video }}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">YouTube Demo Link</label>
+                        {{ profile_form.youtube_link }}
+                    </div>
+                </div>
+                <div class="form-group form-check-group">
+                    {{ profile_form.is_available }}
+                    <label class="form-label">I am currently available for new students</label>
+                </div>
+
+                {% else %}
+                <h2 class="form-section-title">Student Details</h2>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Current Class</label>
+                        {{ profile_form.class_name }}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Interested Subjects</label>
+                        {{ profile_form.interested_subjects }}
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Area / Locality</label>
+                        {{ profile_form.location }}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">City</label>
+                        {{ profile_form.city }}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-save"></i> Save Changes
+                </button>
+                <a href="{% if user.role == 'teacher' %}{% url 'dashboard:teacher' %}{% else %}{% url 'dashboard:student' %}{% endif %}" class="btn-outline">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </main>
+</div>
+{% endblock %}

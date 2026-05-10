@@ -1,0 +1,393 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<!-- ========== HERO SECTION ========== -->
+<section class="hero">
+    <div class="hero-bg-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+    </div>
+    <div class="hero-content">
+        <div class="hero-badge">
+            <i class="fas fa-shield-alt"></i> 100% Verified Tutors
+        </div>
+        <h1 class="hero-title">
+            Welcome to <span class="hero-brand" id="typingText">Futor</span>
+        </h1>
+        <p class="hero-tagline">Find Trusted Tutors in Your Area</p>
+        <p class="hero-sub">Connect with qualified home tutors for Class 1–12 across all subjects. Learn at your own pace, in your comfort zone.</p>
+
+        <div class="hero-actions">
+            <a href="{% url 'accounts:register' %}" class="btn-primary hero-btn">
+                Get Started Free <i class="fas fa-arrow-right"></i>
+            </a>
+            <a href="{% url 'tutors:list' %}" class="btn-outline hero-btn">
+                Browse Tutors <i class="fas fa-search"></i>
+            </a>
+        </div>
+
+        <!-- Search Bar -->
+        <form class="hero-search" action="{% url 'tutors:list' %}" method="GET">
+            <div class="search-wrapper">
+                <i class="fas fa-map-marker-alt search-icon"></i>
+                <input
+                    type="text"
+                    name="location"
+                    class="search-input"
+                    placeholder="Search tutors by city or location..."
+                    autocomplete="off"
+                >
+                <button type="submit" class="search-btn">
+                    <i class="fas fa-search"></i> Search
+                </button>
+            </div>
+        </form>
+
+        <!-- Quick Stats -->
+        <div class="hero-stats">
+            <div class="stat-item">
+                <span class="stat-number">500+</span>
+                <span class="stat-label">Verified Tutors</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+                <span class="stat-number">10K+</span>
+                <span class="stat-label">Happy Students</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+                <span class="stat-number">50+</span>
+                <span class="stat-label">Subjects</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ========== FEATURES SECTION ========== -->
+<section class="features section-padding">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-badge">Why Futor?</span>
+            <h2 class="section-title">Learn the Smarter Way</h2>
+            <p class="section-sub">Everything you need for quality home tuition</p>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card" data-aos="fade-up">
+                <div class="feature-icon">
+                    <i class="fas fa-user-check"></i>
+                </div>
+                <h3>Verified Tutors</h3>
+                <p>Highly qualified and experienced teachers, background-checked and verified for your safety.</p>
+            </div>
+
+            <div class="feature-card" data-aos="fade-up" style="animation-delay: 0.1s">
+                <div class="feature-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <h3>Flexible Timing</h3>
+                <p>Learn at your own comfort and schedule. Morning, afternoon, or evening — you choose.</p>
+            </div>
+
+            <div class="feature-card" data-aos="fade-up" style="animation-delay: 0.2s">
+                <div class="feature-icon">
+                    <i class="fas fa-tags"></i>
+                </div>
+                <h3>Affordable Fees</h3>
+                <p>Qualified home tuitions at affordable prices. Find tutors matching your budget easily.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ========== POPULAR COURSES SECTION ========== -->
+<section class="popular-courses section-padding section-alt">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-badge">Subjects</span>
+            <h2 class="section-title">Popular Courses</h2>
+            <p class="section-sub">Find tutors for all subjects across all classes</p>
+        </div>
+
+        <div class="subjects-grid">
+            <a href="{% url 'tutors:list' %}?subject=Mathematics" class="subject-chip">
+                <span class="subject-emoji">📐</span> Mathematics
+            </a>
+            <a href="{% url 'tutors:list' %}?subject=Physics" class="subject-chip">
+                <span class="subject-emoji">⚡</span> Physics
+            </a>
+            <a href="{% url 'tutors:list' %}?subject=Chemistry" class="subject-chip">
+                <span class="subject-emoji">🧪</span> Chemistry
+            </a>
+            <a href="{% url 'tutors:list' %}?subject=Biology" class="subject-chip">
+                <span class="subject-emoji">🌱</span> Biology
+            </a>
+            <a href="{% url 'tutors:list' %}?subject=English" class="subject-chip">
+                <span class="subject-emoji">📖</span> English
+            </a>
+            <a href="{% url 'tutors:list' %}?subject=Hindi" class="subject-chip">
+                <span class="subject-emoji">🇮🇳</span> Hindi
+            </a>
+            <a href="{% url 'tutors:list' %}?subject=Computer Science" class="subject-chip">
+                <span class="subject-emoji">💻</span> Computer Science
+            </a>
+            <a href="{% url 'tutors:list' %}?subject=Science" class="subject-chip">
+                <span class="subject-emoji">🔬</span> Science
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- ========== FEATURED TUTORS SECTION ========== -->
+<section class="featured-tutors section-padding">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-badge">Top Picks</span>
+            <h2 class="section-title">Featured Tutors</h2>
+            <p class="section-sub">Handpicked, verified tutors ready to help you excel</p>
+        </div>
+
+        {% if featured_tutors %}
+        <div class="tutors-grid">
+            {% for teacher_profile in featured_tutors %}
+            <div class="tutor-card">
+                {% if teacher_profile.is_verified %}
+                <div class="tutor-badge verified">✓ Verified</div>
+                {% endif %}
+                <div class="tutor-image-wrap">
+                    {% if teacher_profile.user.profile_image %}
+                        <img src="{{ teacher_profile.user.profile_image.url }}"
+                             alt="{{ teacher_profile.user.full_name }}"
+                             class="tutor-img">
+                    {% else %}
+                        <div class="tutor-img-placeholder">
+                            {{ teacher_profile.user.full_name|first|upper }}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="tutor-info">
+                    <h3 class="tutor-name">{{ teacher_profile.user.full_name }}</h3>
+                    <p class="tutor-qual">
+                        <i class="fas fa-graduation-cap"></i>
+                        {{ teacher_profile.qualification|default:"Qualified Tutor" }}
+                    </p>
+                    <p class="tutor-exp">
+                        <i class="fas fa-briefcase"></i>
+                        {{ teacher_profile.experience_years }} yr{% if teacher_profile.experience_years != 1 %}s{% endif %} experience
+                    </p>
+                    <p class="tutor-location">
+                        <i class="fas fa-map-marker-alt"></i>
+                        {{ teacher_profile.city|default:"Location not set" }}
+                    </p>
+                    <div class="tutor-subjects">
+                        {% for subject in teacher_profile.get_subjects_list|slice:":3" %}
+                        <span class="subject-tag">{{ subject }}</span>
+                        {% endfor %}
+                    </div>
+                    <div class="tutor-footer">
+                        <span class="tutor-fees">
+                            <i class="fas fa-rupee-sign"></i>
+                            {% if teacher_profile.fees_per_month %}
+                                {{ teacher_profile.fees_per_month }}/mo
+                            {% else %}
+                                Negotiable
+                            {% endif %}
+                        </span>
+                        <a href="{% url 'tutors:detail' teacher_profile.user.id %}" class="btn-demo">
+                            View Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <!-- Placeholder cards when no tutors in DB yet -->
+        <div class="tutors-grid">
+            {% for i in "123456" %}
+            <div class="tutor-card placeholder-card">
+                <div class="tutor-image-wrap">
+                    <div class="tutor-img-placeholder">T</div>
+                </div>
+                <div class="tutor-info">
+                    <h3 class="tutor-name">Expert Tutor</h3>
+                    <p class="tutor-qual"><i class="fas fa-graduation-cap"></i> M.Sc / B.Ed</p>
+                    <p class="tutor-exp"><i class="fas fa-briefcase"></i> 5+ years experience</p>
+                    <p class="tutor-location"><i class="fas fa-map-marker-alt"></i> Your City</p>
+                    <div class="tutor-subjects">
+                        <span class="subject-tag">Mathematics</span>
+                        <span class="subject-tag">Science</span>
+                    </div>
+                    <div class="tutor-footer">
+                        <span class="tutor-fees"><i class="fas fa-rupee-sign"></i> 2000/mo</span>
+                        <a href="{% url 'accounts:register' %}" class="btn-demo">Book Demo</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="section-cta">
+            <a href="{% url 'tutors:list' %}" class="btn-primary">
+                View All Tutors <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- ========== WHY CHOOSE US SECTION ========== -->
+<section class="why-us section-padding section-alt">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-badge">Our Promise</span>
+            <h2 class="section-title">Why Choose Us</h2>
+            <p class="section-sub">We make learning effective, safe, and enjoyable</p>
+        </div>
+
+        <div class="why-grid">
+            <div class="why-card">
+                <div class="why-icon"><i class="fas fa-rupee-sign"></i></div>
+                <h3>Affordable Fees</h3>
+                <p>Best pricing for students. Compare tutors and choose what fits your budget.</p>
+            </div>
+            <div class="why-card">
+                <div class="why-icon"><i class="fas fa-calendar-check"></i></div>
+                <h3>Flexible Timing</h3>
+                <p>Learn according to your schedule. Weekend or weekday, morning or evening.</p>
+            </div>
+            <div class="why-card">
+                <div class="why-icon"><i class="fas fa-laptop-house"></i></div>
+                <h3>Online & Offline</h3>
+                <p>Both learning modes available. Home tuition or video call — your choice.</p>
+            </div>
+            <div class="why-card">
+                <div class="why-icon"><i class="fas fa-star"></i></div>
+                <h3>Rated Tutors</h3>
+                <p>Read real reviews from students. Pick trusted tutors with proven track records.</p>
+            </div>
+            <div class="why-card">
+                <div class="why-icon"><i class="fas fa-video"></i></div>
+                <h3>Free Demo Class</h3>
+                <p>Try before you commit. Book a free demo class with any tutor, no charges.</p>
+            </div>
+            <div class="why-card">
+                <div class="why-icon"><i class="fas fa-headset"></i></div>
+                <h3>24/7 Support</h3>
+                <p>We are always here to help you. Reach us anytime via chat or phone.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ========== TESTIMONIALS SECTION ========== -->
+<section class="testimonials section-padding">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-badge">Reviews</span>
+            <h2 class="section-title">What Students Say</h2>
+        </div>
+        <div class="testimonials-grid">
+            <div class="testimonial-card">
+                <div class="testimonial-stars">★★★★★</div>
+                <p class="testimonial-text">"Found an amazing Math tutor through Futor. My grades improved from C to A+ in just 3 months!"</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar">R</div>
+                    <div>
+                        <strong>Rahul Sharma</strong>
+                        <span>Class 12 Student</span>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <div class="testimonial-stars">★★★★★</div>
+                <p class="testimonial-text">"Futor helped me find a Chemistry tutor near my home. The demo class feature is excellent!"</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar">P</div>
+                    <div>
+                        <strong>Priya Patel</strong>
+                        <span>Class 11 Student</span>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <div class="testimonial-stars">★★★★★</div>
+                <p class="testimonial-text">"As a tutor, Futor helped me connect with many students in my area. Great platform!"</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar">A</div>
+                    <div>
+                        <strong>Anil Kumar</strong>
+                        <span>Mathematics Teacher</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ========== FAQ SECTION ========== -->
+<section class="faq section-padding section-alt">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-badge">FAQ</span>
+            <h2 class="section-title">Frequently Asked Questions</h2>
+        </div>
+        <div class="faq-list">
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFaq(this)">
+                    How do I find a tutor near me?
+                    <i class="fas fa-chevron-down faq-icon"></i>
+                </button>
+                <div class="faq-answer">
+                    <p>Simply enter your city or location in the search bar on the home page or use the Courses page. Filter tutors by subject, class, and location to find the perfect match.</p>
+                </div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFaq(this)">
+                    Is the demo class free?
+                    <i class="fas fa-chevron-down faq-icon"></i>
+                </button>
+                <div class="faq-answer">
+                    <p>Yes! Demo classes are completely free. You can book a trial class with any tutor before making your final decision.</p>
+                </div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFaq(this)">
+                    How are tutors verified?
+                    <i class="fas fa-chevron-down faq-icon"></i>
+                </button>
+                <div class="faq-answer">
+                    <p>Our team manually verifies each tutor's qualifications and experience. Verified tutors get a special badge on their profile.</p>
+                </div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFaq(this)">
+                    Can I become a tutor on Futor?
+                    <i class="fas fa-chevron-down faq-icon"></i>
+                </button>
+                <div class="faq-answer">
+                    <p>Absolutely! Register for free, select "Teacher" as your role, and complete your profile. Students in your area will be able to find you.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ========== CTA SECTION ========== -->
+<section class="cta-section">
+    <div class="container">
+        <div class="cta-content">
+            <h2>Ready to Start Learning?</h2>
+            <p>Join thousands of students who found their perfect tutor on Futor</p>
+            <div class="cta-buttons">
+                <a href="{% url 'accounts:register' %}" class="btn-primary">Join as Student</a>
+                <a href="{% url 'accounts:register' %}" class="btn-white">Join as Teacher</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

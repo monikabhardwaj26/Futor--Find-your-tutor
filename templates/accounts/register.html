@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Register - Futor{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="auth-container">
+        <!-- Left side -->
+        <div class="auth-left">
+            <div class="auth-left-content">
+                <a href="{% url 'home:index' %}" class="auth-logo">
+                    <span class="logo-f">F</span>utor
+                </a>
+                <h2>Join Futor Today!</h2>
+                <p>Create your free account and start connecting with the best tutors in your area.</p>
+                <div class="auth-features">
+                    <div class="auth-feature">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Free to join, always</span>
+                    </div>
+                    <div class="auth-feature">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Book free demo classes</span>
+                    </div>
+                    <div class="auth-feature">
+                        <i class="fas fa-check-circle"></i>
+                        <span>500+ verified tutors</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right side - Form -->
+        <div class="auth-right">
+            <div class="auth-form-wrap">
+                <h1 class="auth-title">Create Account</h1>
+                <p class="auth-subtitle">Fill in your details to get started</p>
+
+                <form method="POST" action="{% url 'accounts:register' %}" class="auth-form" novalidate>
+                    {% csrf_token %}
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-user"></i> Full Name
+                        </label>
+                        {{ form.full_name }}
+                        {% if form.full_name.errors %}
+                        <span class="form-error">{{ form.full_name.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-envelope"></i> Email Address
+                        </label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                        <span class="form-error">{{ form.email.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-phone"></i> Phone Number <span class="optional">(Optional)</span>
+                        </label>
+                        {{ form.phone_number }}
+                        {% if form.phone_number.errors %}
+                        <span class="form-error">{{ form.phone_number.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-lock"></i> Password
+                        </label>
+                        <div class="password-wrap">
+                            {{ form.password }}
+                            <button type="button" class="toggle-password" onclick="togglePass('id_password', 'eye1')">
+                                <i class="fas fa-eye" id="eye1"></i>
+                            </button>
+                        </div>
+                        {% if form.password.errors %}
+                        <span class="form-error">{{ form.password.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-lock"></i> Confirm Password
+                        </label>
+                        <div class="password-wrap">
+                            {{ form.confirm_password }}
+                            <button type="button" class="toggle-password" onclick="togglePass('id_confirm_password', 'eye2')">
+                                <i class="fas fa-eye" id="eye2"></i>
+                            </button>
+                        </div>
+                        {% if form.confirm_password.errors %}
+                        <span class="form-error">{{ form.confirm_password.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+
+                    {% if form.non_field_errors %}
+                    <div class="form-alert error">
+                        <i class="fas fa-times-circle"></i>
+                        {{ form.non_field_errors.0 }}
+                    </div>
+                    {% endif %}
+
+                    <button type="submit" class="btn-primary btn-full">
+                        <i class="fas fa-user-plus"></i> Create Account
+                    </button>
+                </form>
+
+                <div class="auth-footer">
+                    <p>Already have an account? <a href="{% url 'accounts:login' %}">Sign In</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function togglePass(inputId, iconId) {
+    const input = document.getElementById(inputId);
+    const icon = document.getElementById(iconId);
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'fas fa-eye-slash';
+    } else {
+        input.type = 'password';
+        icon.className = 'fas fa-eye';
+    }
+}
+</script>
+{% endblock %}
